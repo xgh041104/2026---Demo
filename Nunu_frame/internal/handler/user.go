@@ -18,4 +18,5 @@ func NewUserHandler(handler *Handler, userService service.UserService) *UserHand
 	}
 }
 func (h *UserHandler) Login(c *gin.Context) {
+
 }
