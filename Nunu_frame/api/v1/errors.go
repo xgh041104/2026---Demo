@@ -23,7 +23,9 @@ var (
 	ErrPasswordIncorrect = newError(1003, "密码不匹配")
 
 	//label
-	ErrFindLabel = newError(1004, "标签查找失败")
+	ErrFindLabel         = newError(1004, "标签查找失败")
+	ErrCreateLabel       = newError(1005, "标签创建失败")
+	ErrLabelAlreadyExist = newError(1006, "标签已存在")
 
 	//category
 	ErrFindCategory = newError(1005, "分类查找失败")
