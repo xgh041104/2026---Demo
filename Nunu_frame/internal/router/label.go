@@ -12,5 +12,6 @@ func InitLabelRouter(
 	{
 		noAuthRouter.GET("/labels", deps.LabelHandler.GetAllLabels)
 		noAuthRouter.POST("/label", deps.LabelHandler.CreateLabel)
+		noAuthRouter.DELETE("/label/:id", deps.LabelHandler.DeleteLabel)
 	}
 }
