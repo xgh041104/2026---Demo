@@ -9,5 +9,6 @@ func InitCategoryRouter(
 	noAuthRouter := r.Group("/")
 	{
 		noAuthRouter.GET("/category", deps.CategoryHandler.GetAllCategories)
+		noAuthRouter.POST("/category", deps.CategoryHandler.CreateCategory)
 	}
 }

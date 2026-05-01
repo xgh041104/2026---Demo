@@ -36,3 +36,20 @@ func (h *CategoryHandler) GetAllCategories(ctx *gin.Context) {
 	}
 	v1.HandleSuccess(ctx, categories)
 }
+
+// 新增分类
+func (h *CategoryHandler) CreateCategory(ctx *gin.Context) {
+	var req v1.CreateCategoryReq
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("create category err bind")
+		v1.HandleError(ctx, http.StatusBadRequest, err, nil)
+		return
+	}
+	err := h.categoryService.CreateCategory(ctx, &req)
+	if err != nil {
+		h.logger.Error("create category err")
+		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+		return
+	}
+	v1.HandleSuccess(ctx, nil)
+}
