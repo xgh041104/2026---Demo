@@ -9,5 +9,7 @@ func InitSubCategoryRouter(
 	noAuthRouter := r.Group("/")
 	{
 		noAuthRouter.GET("/sub-categories", deps.SubCategoryHandler.GetAllSubCategories)
+		noAuthRouter.POST("/sub-category", deps.SubCategoryHandler.CreateSubCategory)
+		noAuthRouter.DELETE("/sub-category/:id", deps.SubCategoryHandler.DeleteSubCategory)
 	}
 }

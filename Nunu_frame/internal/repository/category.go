@@ -13,6 +13,7 @@ type CategoryRepository interface {
 	GetCategory(ctx context.Context, id int64) (*model.Category, error)
 	GetAllCategories(ctx *gin.Context) ([]*model.Category, error)
 	CreateCategory(ctx *gin.Context, m *model.Category) error
+	DeleteCategory(ctx *gin.Context, id int64) error
 }
 
 func NewCategoryRepository(
@@ -59,6 +60,27 @@ func (r *categoryRepository) CreateCategory(ctx *gin.Context, m *model.Category)
 
 	if err := r.DB(ctx).Create(m).Error; err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// 实现删除接口
+func (r *categoryRepository) DeleteCategory(ctx *gin.Context, id int64) error {
+	// 查找分类是否存在
+	var category model.Category
+	if err := r.DB(ctx).Preload("SubCategories").First(&category, id).Error; err != nil {
+		return v1.ErrCategoryNotExist
+	}
+
+	// 删除该分类下的所有子分类（通过 category_id 字段）
+	if err := r.DB(ctx).Where("category_id = ?", id).Delete(&model.SubCategory{}).Error; err != nil {
+		return v1.ErrDeleteSubCategory
+	}
+
+	// 删除分类（软删除）
+	if err := r.DB(ctx).Delete(&category).Error; err != nil {
+		return v1.ErrDeleteCategory
 	}
 
 	return nil

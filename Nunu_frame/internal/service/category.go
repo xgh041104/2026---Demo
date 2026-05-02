@@ -13,6 +13,7 @@ type CategoryService interface {
 	GetCategory(ctx context.Context, id int64) (*model.Category, error)
 	GetAllCategories(ctx *gin.Context) ([]*model.Category, error)
 	CreateCategory(ctx *gin.Context, c *v1.CreateCategoryReq) error
+	DeleteCategory(ctx *gin.Context, ID int64) error
 }
 
 func NewCategoryService(
@@ -51,4 +52,9 @@ func (s *categoryService) CreateCategory(ctx *gin.Context, c *v1.CreateCategoryR
 		Sort:   c.Sort,
 		Status: c.Status,
 	})
+}
+
+// 删除接口
+func (s *categoryService) DeleteCategory(ctx *gin.Context, ID int64) error {
+	return s.categoryRepository.DeleteCategory(ctx, ID)
 }

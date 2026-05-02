@@ -29,9 +29,14 @@ var (
 	ErrDeleteLabel       = newError(1007, "标签删除失败")
 
 	//category
-	ErrFindCategory   = newError(1005, "分类查找失败")
-	ErrCategoryExists = newError(1006, "分类已存在")
+	ErrFindCategory     = newError(1005, "分类查找失败")
+	ErrCategoryExists   = newError(1006, "分类已存在")
+	ErrCategoryNotExist = newError(1007, "分类不存在")
+	ErrDeleteCategory   = newError(1008, "分类删除失败")
 
 	//subCategory
-	ErrFindSubCategory = newError(1006, "子分类查找失败")
+	ErrFindSubCategory         = newError(1006, "子分类查找失败")
+	ErrDeleteSubCategory       = newError(1007, "子分类删除失败")
+	ErrSubCategoryAlreadyExist = newError(1008, "子分类已存在")
+	ErrSubCategoryNotExist     = newError(1009, "子分类不存在")
 )

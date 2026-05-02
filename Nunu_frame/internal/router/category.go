@@ -10,5 +10,6 @@ func InitCategoryRouter(
 	{
 		noAuthRouter.GET("/category", deps.CategoryHandler.GetAllCategories)
 		noAuthRouter.POST("/category", deps.CategoryHandler.CreateCategory)
+		noAuthRouter.DELETE("/category/:id", deps.CategoryHandler.DeleteCategory)
 	}
 }

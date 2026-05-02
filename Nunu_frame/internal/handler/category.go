@@ -3,6 +3,7 @@ package handler
 import (
 	v1 "Nunu_frame/api/v1"
 	"Nunu_frame/internal/service"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -48,6 +49,31 @@ func (h *CategoryHandler) CreateCategory(ctx *gin.Context) {
 	err := h.categoryService.CreateCategory(ctx, &req)
 	if err != nil {
 		h.logger.Error("create category err")
+		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+		return
+	}
+	v1.HandleSuccess(ctx, nil)
+}
+
+// 删除分类
+func (h *CategoryHandler) DeleteCategory(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		h.logger.Error("delete category missing id parameter")
+		v1.HandleError(ctx, http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	var intID int64
+	if _, err := fmt.Sscanf(id, "%d", &intID); err != nil {
+		h.logger.Error("delete category invalid id format")
+		v1.HandleError(ctx, http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	err := h.categoryService.DeleteCategory(ctx, intID)
+	if err != nil {
+		h.logger.Error("delete category err")
 		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
