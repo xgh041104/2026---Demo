@@ -32,11 +32,23 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	userRepository := repository.NewUserRepository(repositoryRepository)
 	userService := service.NewUserService(serviceService, userRepository)
 	userHandler := handler.NewUserHandler(handlerHandler, userService)
+	labelRepository := repository.NewLabelRepository(repositoryRepository)
+	labelService := service.NewLabelService(serviceService, labelRepository)
+	labelHandler := handler.NewLabelHandler(handlerHandler, labelService)
+	categoryRepository := repository.NewCategoryRepository(repositoryRepository)
+	categoryService := service.NewCategoryService(serviceService, categoryRepository)
+	categoryHandler := handler.NewCategoryHandler(handlerHandler, categoryService)
+	subCategoryRepository := repository.NewSubCategoryRepository(repositoryRepository)
+	subCategoryService := service.NewSubCategoryService(serviceService, subCategoryRepository)
+	subCategoryHandler := handler.NewSubCategoryHandler(handlerHandler, subCategoryService)
 	routerDeps := router.RouterDeps{
-		Logger:      logger,
-		Config:      viperViper,
-		JWT:         jwtJWT,
-		UserHandler: userHandler,
+		Logger:             logger,
+		Config:             viperViper,
+		JWT:                jwtJWT,
+		UserHandler:        userHandler,
+		LabelHandler:       labelHandler,
+		CategoryHandler:    categoryHandler,
+		SubCategoryHandler: subCategoryHandler,
 	}
 	httpServer := server.NewHTTPServer(routerDeps)
 	appApp := newApp(httpServer)
@@ -46,11 +58,11 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository)
+var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewLabelRepository, repository.NewCategoryRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewLabelService, service.NewCategoryService)
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewLabelHandler, handler.NewCategoryHandler)
 
 var serverSet = wire.NewSet(server.NewHTTPServer)
 
