@@ -13,6 +13,7 @@
         "isFull": false,
         "isAffix": true,
         "isKeepAlive": true
+      }
     },
     {
       "path": "/fodder/index",
@@ -41,9 +42,6 @@
         "isAffix": false,
         "isKeepAlive": true
       }
-    },
-      }
->>>>>>> 39d94bb79a2c371d8758133ffb7b3211b2f7c396
     }
   ],
   "msg": "成功"
