@@ -44,13 +44,13 @@ const globalStore = useGlobalStore();
 const keepAliveStore = useKeepAliveStore();
 
 // 刷新当前页
-const refreshCurrentPage: Function = inject("refresh") as Function;
+const refreshCurrentPage = inject("refresh") as (val: boolean) => void;
 const refresh = () => {
   setTimeout(() => {
-    route.meta.isKeepAlive && keepAliveStore.removeKeepAliveName(route.fullPath as string);
+    if (route.meta.isKeepAlive) keepAliveStore.removeKeepAliveName(route.fullPath as string);
     refreshCurrentPage(false);
     nextTick(() => {
-      route.meta.isKeepAlive && keepAliveStore.addKeepAliveName(route.fullPath as string);
+      if (route.meta.isKeepAlive) keepAliveStore.addKeepAliveName(route.fullPath as string);
       refreshCurrentPage(true);
     });
   }, 0);

@@ -12,7 +12,7 @@ export function localGet(key: string) {
   const value = window.localStorage.getItem(key);
   try {
     return JSON.parse(window.localStorage.getItem(key) as string);
-  } catch (error) {
+  } catch {
     return value;
   }
 }
@@ -164,7 +164,7 @@ export function getFlatMenuList(menuList: Menu.MenuOptions[]): Menu.MenuOptions[
 export function getShowMenuList(menuList: Menu.MenuOptions[]) {
   let newMenuList: Menu.MenuOptions[] = JSON.parse(JSON.stringify(menuList));
   return newMenuList.filter(item => {
-    item.children?.length && (item.children = getShowMenuList(item.children));
+    if (item.children?.length) item.children = getShowMenuList(item.children);
     return !item.meta?.isHide;
   });
 }
@@ -223,8 +223,8 @@ export function findMenuByPath(menuList: Menu.MenuOptions[], path: string): Menu
  * */
 export function getKeepAliveRouterName(menuList: Menu.MenuOptions[], keepAliveNameArr: string[] = []) {
   menuList.forEach(item => {
-    item.meta.isKeepAlive && item.name && keepAliveNameArr.push(item.name);
-    item.children?.length && getKeepAliveRouterName(item.children, keepAliveNameArr);
+    if (item.meta.isKeepAlive && item.name) keepAliveNameArr.push(item.name);
+    if (item.children?.length) getKeepAliveRouterName(item.children, keepAliveNameArr);
   });
   return keepAliveNameArr;
 }

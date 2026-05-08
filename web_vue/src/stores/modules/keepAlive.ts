@@ -9,7 +9,7 @@ export const useKeepAliveStore = defineStore({
   actions: {
     // Add KeepAliveName
     async addKeepAliveName(name: string) {
-      !this.keepAliveName.includes(name) && this.keepAliveName.push(name);
+      if (!this.keepAliveName.includes(name)) this.keepAliveName.push(name);
     },
     // Remove KeepAliveName
     async removeKeepAliveName(name: string) {

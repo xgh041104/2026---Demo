@@ -33,6 +33,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     css: {
       preprocessorOptions: {
         scss: {
+          // Dart Sass 1.79+：消除 legacy API 与 @import 弃用提示（不影响运行，避免误以为「编译失败」）
+          api: "modern-compiler",
+          silenceDeprecations: ["legacy-js-api", "import"],
           additionalData: `@import "@/styles/var.scss";`
         }
       }
