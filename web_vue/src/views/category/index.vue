@@ -9,12 +9,11 @@
       ref="tableRef"
       :data="categoryList"
       row-key="id"
-      default-expand-all
       :tree-props="{ children: 'children' }"
       border
       class="category-table"
     >
-      <el-table-column prop="id" label="ID" width="120" />
+      <el-table-column prop="id" label="分类ID" width="120" />
       <el-table-column label="分类名称" min-width="420">
         <template #default="{ row }">
           <div class="name-cell">
@@ -65,7 +64,7 @@ type DialogMode = "createRoot" | "createChild" | "edit";
 const STORAGE_KEY = "medi-link-category-list";
 const tableRef = ref<any>();
 const formRef = ref<FormInstance>();
-const expandAll = ref(true);
+const expandAll = ref(false);
 const dialogVisible = ref(false);
 const dialogTitle = ref("新增分类");
 const dialogMode = ref<DialogMode>("createRoot");
