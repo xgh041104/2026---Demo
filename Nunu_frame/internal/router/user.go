@@ -11,22 +11,24 @@ func InitUserRouter(
 	r *gin.RouterGroup,
 ) {
 	// No route group has permission
-	user := r.Group("/user")
+	noAuthRouter := r.Group("/")
 	{
-		user.POST("/login")
+		noAuthRouter.POST("/loginUser", deps.UserHandler.Login)
+		noAuthRouter.POST("/CreateUser", deps.UserHandler.CreateUser)
 	}
-	userAuth := r.Group("/user").Use(middleware.LoginRequired(deps.JWT, deps.Logger))
+	// Non-strict permission routing group
+	noStrictAuthRouter := r.Group("/").Use(middleware.NoStrictAuth(deps.JWT, deps.Logger))
 	{
-		userAuth.GET("/info")
-		// Keep for compatibility
+		noStrictAuthRouter.GET("/user")
+
 	}
+
 	// Strict permission routing group
-	admin := r.Group("/admin").Use(middleware.RoleRequired(deps.JWT, deps.Logger, "admin", "root"))
+	strictAuthRouter := r.Group("/").Use(middleware.StrictAuth(deps.JWT, deps.Logger))
 	{
-		admin.POST("/createUser")
-	}
-	root := r.Group("/root").Use(middleware.RoleRequired(deps.JWT, deps.Logger, "root"))
-	{
-		root.DELETE("/deleteUser/:id")
+		strictAuthRouter.PUT("/user")
+		strictAuthRouter.PUT("/UpdateUser", deps.UserHandler.UpdateUser)
+		strictAuthRouter.DELETE("/user/:id", deps.UserHandler.DeleteUser)
+		strictAuthRouter.PUT("/ResetUserPassword", deps.UserHandler.ResetUserPassword)
 	}
 }
