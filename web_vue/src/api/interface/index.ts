@@ -88,3 +88,30 @@ export namespace User {
     children?: ResDepartment[];
   }
 }
+
+//素材类
+export namespace Fodder {
+  export interface addFodder {
+    foddername: string;
+    status: number;
+    coverImg: string;
+    categoryId: number;
+    labelId: number;
+    remark: string;
+  }
+
+  export interface fodderList {
+    fodderId: number;
+    status: number;
+    foddername: string;
+    creatorId: number;
+    coverImg: string;
+    labelId: number;
+    categoryId: number;
+    remark: string;
+    createTime: string;
+    updateTime: string;
+    deleteTime: string;
+  }
+}
+
