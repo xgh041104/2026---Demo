@@ -39,4 +39,21 @@ var (
 	ErrDeleteSubCategory       = newError(1007, "子分类删除失败")
 	ErrSubCategoryAlreadyExist = newError(1008, "子分类已存在")
 	ErrSubCategoryNotExist     = newError(1009, "子分类不存在")
+
+
+	// material
+	ErrCreateUser = newError(1009, "创建用户失败")
+	ErrDeleteUser = newError(1010, "删除用户失败")
+	ErrReset = newError(1011, "重置密码失败")
+	ErrFindAllAccount = newError(1012, "查找所有账号失败")
+	ErrFindLikeAccount = newError(1013, "查找相似账号失败")
+	ErrPicUserId = newError(1014, "用户ID不能为空")
+	ErrPicUrl = newError(1015, "URL不能为空")
+	ErrGetMaterialList = newError(1016, "获取素材库列表失败")
+	ErrGetMaterialLabelStr = newError(1017, "获取标签表组失败")
+	ErrUpdataStatus = newError(1018, "更新上传状态失败")
+	ErrGetPcDataCount = newError(1019, "获取数据库个人数据数量失败")
+	ErrGetPcUrlData = newError(1020, "获取个人数据Url失败")
+	ErrDeletePcMaterial = newError(1021, "删除素材失败")
+	ErrFileExt = newError(1022, "文件后缀错误")
 )

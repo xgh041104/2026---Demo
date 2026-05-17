@@ -40,6 +40,7 @@ func NewHTTPServer(
 	router.InitLabelRouter(deps, v1)
 	router.InitCategoryRouter(deps, v1)
 	router.InitSubCategoryRouter(deps, v1)
+	router.InitMaterialRouter(deps, v1)
 
 	return s
 }
