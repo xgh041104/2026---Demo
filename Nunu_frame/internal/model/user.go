@@ -5,6 +5,7 @@ import (
 )
 
 type User struct {
+	// Id       uint      `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
 	gorm.Model
 	Account    string `gorm:"type:varchar(50);not null;unique;comment:登录账号" json:"account"`
 	Password   string `gorm:"type:varchar(100);not null;comment:登录密码" json:"password"`
@@ -16,5 +17,5 @@ type User struct {
 }
 
 func (u *User) TableName() string {
-	return "users"
+	return "user" // 如果你想完全按图片标题来，这里写 user
 }

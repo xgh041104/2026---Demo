@@ -9,32 +9,41 @@ type LoginResponse struct {
 	Token   string `json:"token"`
 }
 
-type CreateUserReq struct {
-	Account  string `json:"account" binding:"required"`
-	Password string `json:"password" binding:"required"`
+type CreateUserRequest struct {
+	Account  string `json:"account" binding:"required" example:"admin"`
+	Password string `json:"password" binding:"required" example:"123456"`
+}
+type CreateUserResponse struct {
+	UserID    uint   `json:"user_id"`
+	Account   string `json:"account"`
+	CreatedAt string `json:"created_at"`
+}
+type DeleteUserRequest struct {
+	UserID uint `json:"user_id" binding:"required" example:"1"`
+}
+type DeleteUserResponse struct {
+	UserID    uint   `json:"user_id"`
+	DeletedAt string `json:"deleted_at"`
 }
 
-// 修改接口
-type UpdateUserReq struct {
-	Account  string `json:"account" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	RealName string `json:"real_name" binding:"required"`
-	Phone    string `json:"phone" binding:"required"`
-	Email    string `json:"email" binding:"required"`
+type UpdateUserRequest struct {
+	UserID   uint   `json:"user_id" binding:"required" example:"1"`
+	Account  string `json:"account" binding:"required" example:"admin"`
+	Password string `json:"password" binding:"required" example:"123456"`
+	Email    string `json:"email" binding:"required" example:"admin@example.com"`
+	Phone    string `json:"phone" binding:"required" example:"1234567890"`
+	RealName string `json:"real_name" binding:"required" example:"Admin User"`
 }
-
-// 删除接口
-type DeleteUserReq struct {
-	Account    string `gorm:"type:varchar(50);not null;unique;comment:登录账号" json:"account"`
-	Password   string `gorm:"type:varchar(100);not null;comment:登录密码" json:"password"`
-	RealName   string `gorm:"type:varchar(50);not null;comment:真实姓名" json:"real_name"`
-	Phone      string `gorm:"type:varchar(20);comment:手机号" json:"phone"`
-	Email      string `gorm:"type:varchar(100);comment:邮箱" json:"email"`
-	Type       string `gorm:"type:varchar(20);not null;comment:用户角色 admin/root/user" json:"type"`
-	IsDisabled int8   `gorm:"default:0;comment:是否禁用 0启用 1禁用" json:"is_disabled"`
+type UpdateUserResponse struct {
+	UserID    uint   `json:"user_id"`
+	Account   string `json:"account"`
+	UpdatedAt string `json:"updated_at"`
 }
-
-type ResetUserPasswordReq struct {
-	Account  string `gorm:"type:varchar(50);not null;unique;comment:登录账号" json:"account"`
-	Password string `gorm:"type:varchar(100);not null;comment:登录密码" json:"password"`
+type ResetUserPasswordRequest struct {
+	UserID   uint   `json:"user_id" binding:"required" example:"1"`
+	Password string `json:"password" binding:"required" example:"123456"`
+}
+type ResetUserPasswordResponse struct {
+	UserID    uint   `json:"user_id"`
+	UpdatedAt string `json:"updated_at"`
 }
