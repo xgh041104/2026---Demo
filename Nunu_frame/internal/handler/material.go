@@ -29,14 +29,14 @@ func NewMaterialHandler(
 	}
 }
 
-func (h *MaterialHandler) UpdateAuditingMaterialList(c *gin.Context) {
+func (h *MaterialHandler) GetAuditingMaterialList(c *gin.Context) {
 	var req v1.PageNumAndPageSizeRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		h.logger.Error("GetAuditingMaterialHandler bind json error", zap.Any("error", err))
 		v1.HandleError(c, http.StatusBadRequest, v1.ErrBind, nil)
 		return
 	}
-	GAT, err := h.materialService.UpdateAuditingMaterialList(c, &req)
+	GAT, err := h.materialService.GetAuditingMaterialList(c, &req)
 	if err != nil {
 		h.logger.Error("GetAuditingMaterialHandler error", zap.Any("error", err))
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)

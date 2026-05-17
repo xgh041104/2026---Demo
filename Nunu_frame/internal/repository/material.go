@@ -9,7 +9,7 @@ import (
 )
 
 type MaterialRepository interface {
-	UpdateAuditingMaterialList(c context.Context) ([]*model.Material, error)
+	GetAuditingMaterialList(c context.Context) ([]*model.Material, error)
 	SaveMaterial(c context.Context, req *model.Material) error
 	GetMaterialList(c context.Context) ([]*model.Material, error)
 	GetLabelNameStr(c context.Context, LabelIdStr string) (string, error)
@@ -33,7 +33,7 @@ type materialRepository struct {
 	*Repository
 }
 
-func (r *materialRepository) UpdateAuditingMaterialList(c context.Context) ([]*model.Material, error) {
+func (r *materialRepository) GetAuditingMaterialList(c context.Context) ([]*model.Material, error) {
 	var materials []*model.Material
 	err := r.DB(c).Omit("LabelName").
 		Where("status = ?", 0).

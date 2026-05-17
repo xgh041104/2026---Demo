@@ -11,7 +11,7 @@ import (
 )
 
 type MaterialService interface {
-	UpdateAuditingMaterialList(c context.Context, req *v1.PageNumAndPageSizeRequest) (*v1.ReqAuditingMaterialListResponse, error)
+	GetAuditingMaterialList(c context.Context, req *v1.PageNumAndPageSizeRequest) (*v1.ReqAuditingMaterialListResponse, error)
 	SaveAvatar(ctx context.Context, req *model.Material) error
 	GetMaterialList(c context.Context, req *v1.PageNumSizeAndStatus) (*v1.ReqMaterialListRes, error)
 	HomeMaterialData(c context.Context, status int) (int64, error)
@@ -37,8 +37,8 @@ type materialService struct {
 	materialRepository repository.MaterialRepository
 }
 
-func (s *materialService) UpdateAuditingMaterialList(c context.Context, req *v1.PageNumAndPageSizeRequest) (*v1.ReqAuditingMaterialListResponse, error) {
-	materials, err := s.materialRepository.UpdateAuditingMaterialList(c)
+func (s *materialService) GetAuditingMaterialList(c context.Context, req *v1.PageNumAndPageSizeRequest) (*v1.ReqAuditingMaterialListResponse, error) {
+	materials, err := s.materialRepository.GetAuditingMaterialList(c)
 	if err != nil {
 		return nil, v1.ErrGetMaterialList
 	}
