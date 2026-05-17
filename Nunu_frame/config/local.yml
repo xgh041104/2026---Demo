@@ -13,7 +13,7 @@ data:
   db:
     user:
       driver: mysql
-      dsn: root:root@tcp(127.0.0.1:3306)/schooldemo?charset=utf8mb4&parseTime=True&loc=Local
+      dsn: 2kD53tTw52BxLkF.root:<NoB7h2fX24c3LhBQ>@tcp(gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000)/schooldemo?charset=utf8mb4&parseTime=True&loc=Local&tls=true
   redis:
     addr: 127.0.0.1:6350
     password: ""
