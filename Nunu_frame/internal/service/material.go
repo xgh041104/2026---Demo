@@ -52,7 +52,7 @@ func (s *materialService) UpdateAuditingMaterialList(c context.Context, req *v1.
 			Id:          material.ID,
 			Name:        material.Name,
 			CreatorName: material.CreatorName,
-			CreatedAt:   material.CreatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt:   material.CreateTime.Format("2006-01-02 15:04:05"),
 			ImageUrl:    material.ImageUrl,
 		})
 	}
@@ -109,7 +109,7 @@ func (s *materialService) GetMaterialList(c context.Context, req *v1.PageNumSize
 			resp.ReqMaterialResList = append(resp.ReqMaterialResList, v1.ReqMaterialRes{
 				Id:         material.ID,
 				Name:       material.Name,
-				CreatedAt:  material.CreatedAt.Format("2006-01-02 15:04:05"),
+				CreatedAt:  material.CreateTime.Format("2006-01-02 15:04:05"),
 				CategoryId: material.CategoryId,
 				ImageUrl:   material.ImageUrl,
 				LabelName:  LabelNameStr,
@@ -122,7 +122,7 @@ func (s *materialService) GetMaterialList(c context.Context, req *v1.PageNumSize
 			resp.ReqMaterialResList = append(resp.ReqMaterialResList, v1.ReqMaterialRes{
 				Id:         material.ID,
 				Name:       material.Name,
-				CreatedAt:  material.CreatedAt.Format("2006-01-02 15:04:05"),
+				CreatedAt:  material.CreateTime.Format("2006-01-02 15:04:05"),
 				CategoryId: material.CategoryId,
 				ImageUrl:   material.ImageUrl,
 				LabelName:  LabelNameStr,
