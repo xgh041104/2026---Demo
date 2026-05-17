@@ -12,10 +12,10 @@ import (
 
 type UserService interface {
 	Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponse, error)
-	CreateUser(ctx context.Context, req *v1.CreateUserReq) error
-	UpdateUser(ctx context.Context, req *v1.UpdateUserReq) error
+	CreateUser(ctx context.Context, req *v1.CreateUserRequest) error
+	UpdateUser(ctx context.Context, req *v1.UpdateUserRequest) error
 	DeleteUser(ctx context.Context, UserId int64) error
-	ResetUserPassword(ctx context.Context, req *v1.ResetUserPasswordReq) error
+	ResetUserPassword(ctx context.Context, req *v1.ResetUserPasswordRequest) error
 }
 
 func NewUserService(
@@ -63,7 +63,7 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.Logi
 
 //实现创建用户
 
-func (s *userService) CreateUser(ctx context.Context, req *v1.CreateUserReq) error {
+func (s *userService) CreateUser(ctx context.Context, req *v1.CreateUserRequest) error {
 	//判断用户是否存在
 	_, isBool, err := s.userRepo.GetUserByAccount(ctx, req.Account)
 	if err != nil {
@@ -86,7 +86,7 @@ func (s *userService) CreateUser(ctx context.Context, req *v1.CreateUserReq) err
 }
 
 // 实现修改接口
-func (s *userService) UpdateUser(ctx context.Context, req *v1.UpdateUserReq) error {
+func (s *userService) UpdateUser(ctx context.Context, req *v1.UpdateUserRequest) error {
 	//判断用户是否存在
 	user, isBool, err := s.userRepo.GetUserByAccount(ctx, req.Account)
 	if err != nil {
@@ -128,9 +128,9 @@ func (s *userService) DeleteUser(ctx context.Context, UserId int64) error {
 }
 
 // 实现重置用户密码
-func (s *userService) ResetUserPassword(ctx context.Context, req *v1.ResetUserPasswordReq) error {
+func (s *userService) ResetUserPassword(ctx context.Context, req *v1.ResetUserPasswordRequest) error {
 	//判断用户是否存在
-	user, isBool, err := s.userRepo.GetUserByAccount(ctx, req.Account)
+	user, isBool, err := s.userRepo.GetUserById(ctx, int64(req.UserID))
 	if err != nil {
 		return v1.ErrNotFindUser
 	}

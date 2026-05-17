@@ -6,7 +6,13 @@
           <div class="medilink-home__stat-body">
             <div class="medilink-home__stat-text">
               <span class="medilink-home__stat-label">{{ item.title }}</span>
-              <span class="medilink-home__stat-value" :class="item.valueClass">{{ item.value }}</span>
+              <el-input
+                v-model.number="item.value"
+                type="number"
+                size="small"
+                class="medilink-home__stat-input"
+                placeholder="请输入数字"
+              />
             </div>
             <div class="medilink-home__stat-icon" :style="{ background: item.iconBg, color: item.iconColor }">
               <el-icon :size="26">
@@ -28,15 +34,15 @@
 </template>
 
 <script setup lang="ts" name="home">
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
 import { FolderOpened, Document, Calendar, PriceTag } from "@element-plus/icons-vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 
-const statCards = [
+const statCards = ref([
   {
     title: "素材总数",
-    value: "101",
+    value: 100,
     icon: FolderOpened,
     iconBg: "rgba(0, 150, 136, 0.12)",
     iconColor: "#009688",
@@ -44,7 +50,7 @@ const statCards = [
   },
   {
     title: "待审核任务",
-    value: "6",
+    value: 6,
     icon: Document,
     iconBg: "rgba(64, 158, 255, 0.12)",
     iconColor: "#409eff",
@@ -52,7 +58,7 @@ const statCards = [
   },
   {
     title: "今日新增",
-    value: "0",
+    value: 0,
     icon: Calendar,
     iconBg: "rgba(245, 108, 108, 0.12)",
     iconColor: "#f56c6c",
@@ -60,13 +66,13 @@ const statCards = [
   },
   {
     title: "已发布素材",
-    value: "78",
+    value: 78,
     icon: PriceTag,
     iconBg: "rgba(103, 194, 58, 0.12)",
     iconColor: "#67c23a",
     valueClass: ""
   }
-];
+]);
 
 const chartOption = ref<ECOption>({
   color: ["#009688", "#409eff"],
@@ -104,6 +110,15 @@ const chartOption = ref<ECOption>({
       data: [0, 1, 0, 2, 1, 1, 2]
     }
   ]
+});
+
+watchEffect(() => {
+  const values = statCards.value.map(item => Number(item.value));
+  const [total, review, today, published] = values;
+  if (!chartOption.value.series) return;
+
+  chartOption.value.series[0].data = [total, review, today, published, total, review, today];
+  chartOption.value.series[1].data = [published, today, review, total, published, today, review];
 });
 </script>
 
@@ -148,13 +163,18 @@ const chartOption = ref<ECOption>({
   }
 }
 
+.medilink-home__stat-input {
+  width: 100%;
+  max-width: 140px;
+}
+
 .medilink-home__stat-icon {
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 48px;
-  height: 48px;
+  height: 60px;
   border-radius: 10px;
 }
 
