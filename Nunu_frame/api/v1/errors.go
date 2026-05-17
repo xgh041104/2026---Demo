@@ -21,6 +21,8 @@ var (
 
 	//user
 	ErrPasswordIncorrect = newError(1003, "密码不匹配")
+	ErrUserNotFound      = newError(1004, "用户不存在")
+	ErrUserFailFind      = newError(1005, "用户查询失败")
 
 	//label
 	ErrFindLabel         = newError(1004, "标签查找失败")
