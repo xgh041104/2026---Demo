@@ -27,7 +27,7 @@ func (m *MigrateServer) Start(ctx context.Context) error {
 		&model.Label{},
 		&model.Category{},
 		&model.SubCategory{},
-		&model.Material{},
+		&model.TableMaterial{},
 
 	); err != nil {
 		m.log.Error("user migrate error", zap.Error(err))
