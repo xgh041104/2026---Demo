@@ -13,7 +13,7 @@ import (
 type MaterialService interface {
 	GetAuditingMaterialList(c context.Context, req *v1.PageNumAndPageSizeRequest) (*v1.ReqAuditingMaterialListResponse, error)
 	SaveAvatar(ctx context.Context, req *model.Material) error
-	GetMaterialList(c context.Context, req *v1.PageNumSizeAndStatus) (*v1.ReqMaterialListRes, error)
+	GetMaterialList(c context.Context, req *v1.ReqSearchMaterial) (*v1.ReqMaterialListRes, error)
 	HomeMaterialData(c context.Context, status int) (int64, error)
 	MaterialUploadTrend(c context.Context) (*v1.ReqListListInt, error)
 	UpAuditMaterial(c context.Context, req *v1.UpAuditMaterialReq) error
@@ -68,13 +68,14 @@ func (s *materialService) SaveAvatar(ctx context.Context, req *model.Material) e
 	return nil
 }
 
-func (s *materialService) GetMaterialList(c context.Context, req *v1.PageNumSizeAndStatus) (*v1.ReqMaterialListRes, error) {
-	materials, err := s.materialRepository.GetMaterialList(c)
+func (s *materialService) GetMaterialList(c context.Context, req *v1.ReqSearchMaterial) (*v1.ReqMaterialListRes, error) {
+	materials, err := s.materialRepository.GetMaterialList(c, req)
 	if err != nil {
 		return nil, v1.ErrGetMaterialList
 	}
 
 	resp := &v1.ReqMaterialListRes{
+		FileStatus: req.FileStatus,
 		ReqMaterialResList: make([]v1.ReqMaterialRes, 0, len(materials)),
 	}
 
@@ -101,7 +102,7 @@ func (s *materialService) GetMaterialList(c context.Context, req *v1.PageNumSize
 
 	for _, material := range materials {
 		ext := strings.ToLower(filepath.Ext(material.ImageUrl))
-		if imageExts[ext] && req.Status == 0 { // 为图片时
+		if imageExts[ext] && req.FileStatus == 0 { // 为图片时
 			LabelNameStr, err := s.materialRepository.GetLabelNameStr(c, material.LabelId)
 			if err != nil {
 				return nil, v1.ErrGetMaterialLabelStr
@@ -114,7 +115,7 @@ func (s *materialService) GetMaterialList(c context.Context, req *v1.PageNumSize
 				ImageUrl:   material.ImageUrl,
 				LabelName:  LabelNameStr,
 			})
-		} else if videoExts[ext] && req.Status == 1 { // 为视频时
+		} else if videoExts[ext] && req.FileStatus == 1 { // 为视频时
 			LabelNameStr, err := s.materialRepository.GetLabelNameStr(c, material.LabelId)
 			if err != nil {
 				return nil, v1.ErrGetMaterialLabelStr

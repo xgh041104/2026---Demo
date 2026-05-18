@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -72,8 +73,6 @@ func (h *MaterialHandler) SaveloadImage(c *gin.Context) {
 		}
 	)
 
-
-
 	file, err := c.FormFile("file")
 
 	if err == http.ErrMissingFile {
@@ -85,11 +84,14 @@ func (h *MaterialHandler) SaveloadImage(c *gin.Context) {
 		v1.HandleError(c, http.StatusBadRequest, err, nil)
 		return
 	} else {
-		FileName = file.Filename
+		// 获取原始全名
+		originName := file.Filename
+		// 拆分后缀
+		ext := strings.ToLower(filepath.Ext(originName))
+		// 去掉后缀的纯原名
+		onlyName := strings.TrimSuffix(originName, filepath.Ext(originName))
 
-		ext := strings.ToLower(filepath.Ext(FileName))
-
-		if imageExts[ext] {  // 图片路径
+		if imageExts[ext] {
 			avatar = "image"
 		} else if videoExts[ext] {
 			avatar = "video"
@@ -98,25 +100,23 @@ func (h *MaterialHandler) SaveloadImage(c *gin.Context) {
 			return
 		}
 
-		path = fmt.Sprintf("static/%s/%s", avatar , FileName)
+		// 拼接新名：时间戳_原文件名.后缀
+		newName := fmt.Sprintf("%d_%s%s", time.Now().Unix(), onlyName, ext)
+		FileName = newName
+		path = fmt.Sprintf("static/%s/%s", avatar, newName)
+
 		if err := c.SaveUploadedFile(file, path); err != nil {
 			v1.HandleError(c, http.StatusServiceUnavailable, err, nil)
 			return
 		}
-	
-		url = "/static/" + avatar + "/" + filepath.Base(path)
+		url = "/static/" + avatar + "/" + newName
 	}
 
 	OldStatus, _ := strconv.Atoi(c.PostForm("status"))
-
 	title := c.PostForm("title")
-
 	creator_id, _ := strconv.Atoi(c.PostForm("creator_id"))
-
 	label_id := c.PostForm("label_id")
-
 	category_id, _ := strconv.Atoi(c.PostForm("category_id"))
-
 	remark := c.PostForm("remark")
 
 	// 封装
@@ -139,20 +139,20 @@ func (h *MaterialHandler) SaveloadImage(c *gin.Context) {
 		return
 	}
 
-	//将地址返回给前端
-	v1.HandleSuccess(c, gin.H{"avatarUrl": url})
+	v1.HandleSuccess(c, gin.H{"msg": "success"})
 }
 
+// 素材页面 - 搜索
 func (h *MaterialHandler) GetMaterialList(c *gin.Context) {
-	var req v1.PageNumSizeAndStatus
-	if err := c.ShouldBindJSON(&req); err != nil {
-		h.logger.Error("GetMaterialHandler bind json error", zap.Any("error", err))
+	var req v1.ReqSearchMaterial
+	if err := c.ShouldBindQuery(&req); err != nil {
+		h.logger.Error("SearchMaterial bind Query error", zap.Any("error", err))
 		v1.HandleError(c, http.StatusBadRequest, v1.ErrBind, nil)
 		return
 	}
 	GET, err := h.materialService.GetMaterialList(c, &req)
 	if err != nil {
-		h.logger.Error("GetMaterialHandler bind json error", zap.Any("error", err))
+		h.logger.Error("获取素材列表失败", zap.Any("error", err))
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
@@ -241,7 +241,7 @@ func (h *MaterialHandler) GetPcUrlDataList(c *gin.Context) {
 func (h *MaterialHandler) DeletePcMaterial(c *gin.Context) {
 	var req v1.PcData
 	if err := c.ShouldBindJSON(&req); err != nil {
-		h.logger.Error("DeletePcMaterial bind Query error", zap.Any("error", err))
+		h.logger.Error("DeletePcMaterial bind JSON error", zap.Any("error", err))
 		v1.HandleError(c, http.StatusBadRequest, v1.ErrBind, nil)
 		return
 	}
@@ -251,5 +251,21 @@ func (h *MaterialHandler) DeletePcMaterial(c *gin.Context) {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
-	v1.HandleSuccess(c, gin.H{"MaterialId":req.Id, "msg": "success" })
+	v1.HandleSuccess(c, gin.H{"MaterialId": req.Id, "msg": "success"})
 }
+
+// 素材页面 - 搜索
+// func (h *MaterialHandler) SearchMaterial(c *gin.Context) {
+// 	var req v1.ReqSearchMaterial
+// 	if err := c.ShouldBindQuery(&req); err != nil {
+// 		h.logger.Error("SearchMaterial bind Query error", zap.Any("error", err))
+// 		v1.HandleError(c, http.StatusBadRequest, v1.ErrBind, nil)
+// 		return
+// 	}
+// 	List, err := h.materialService.SearchMaterial(c, req)
+// 	if err != nil {
+// 		h.logger.Error("获取素材列表失败", zap.Any("error", err))
+// 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
+// 		return
+// 	}
+// }

@@ -50,16 +50,24 @@ type ResPcDataList struct {
 }
 
 // 素材页面-Get素材列表
+type ReqSearchMaterial struct {
+	CategoryId int    `json:"category_id" form:"category_id"`
+	Name       string `json:"name"  form:"name"`
+	LabelId    int    `json:"label_id"  form:"label_id"`
+	FileStatus int    `json:"file_status"  form:"file_status"`
+}
+
 type ReqMaterialRes struct {
 	Id         uint   `json:"id"`
 	Name       string `json:"name"`
 	CreatedAt  string `json:"created_at"`
 	ImageUrl   string `json:"image_url"`
 	CategoryId int    `json:"category_id"`
-	LabelName  string `json:"label_name"`
+	LabelName  string `json:"label_id"`
 }
 
 type ReqMaterialListRes struct {
+	FileStatus         int              `json:"file_status"`
 	ReqMaterialResList []ReqMaterialRes `json:"list"`
 }
 
@@ -72,5 +80,3 @@ type ReqListInt struct {
 type ReqListListInt struct {
 	ListListInt []ReqListInt `json:"List_upload_count"`
 }
-
-

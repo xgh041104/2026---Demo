@@ -11,7 +11,7 @@ import (
 type MaterialRepository interface {
 	GetAuditingMaterialList(c context.Context) ([]*model.Material, error)
 	SaveMaterial(c context.Context, req *model.Material) error
-	GetMaterialList(c context.Context) ([]*model.Material, error)
+	GetMaterialList(c context.Context, req *v1.ReqSearchMaterial) ([]*model.Material, error)
 	GetLabelNameStr(c context.Context, LabelIdStr string) (string, error)
 	HomeMaterialData(c context.Context, status int) (int64, error)
 	MaterialUploadTrend(c context.Context, status int) ([]int64, error)
@@ -63,12 +63,28 @@ func (r *materialRepository) SaveMaterial(c context.Context, req *model.Material
 	return nil
 }
 
-func (r *materialRepository) GetMaterialList(c context.Context) ([]*model.Material, error) {
+func (r *materialRepository) GetMaterialList(c context.Context, req *v1.ReqSearchMaterial) ([]*model.Material, error) {
+	categoryId := req.CategoryId
+	name := req.Name
+	labelId := req.LabelId
 	var materials []*model.Material
-	err := r.DB(c).Omit("CreatorName", "LabelName").Order("`material`.create_time DESC").Find(&materials).Error
+	db := r.DB(c).Omit("CreatorName", "LabelName")
+	if categoryId != 0 {
+		db = db.Where("category_id = ?", categoryId)
+	}
+	if labelId != 0 {
+		db = db.Where("FIND_IN_SET(?, label_id)", labelId)
+	}
+	if name != "" {
+		db = db.Where("name LIKE ?", "%"+name+"%")
+	}
+	err := db.Order("create_time DESC").
+		Find(&materials).
+		Error
 	if err != nil {
 		return nil, err
 	}
+
 	return materials, nil
 }
 
