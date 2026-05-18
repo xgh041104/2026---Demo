@@ -7,5 +7,5 @@ export const getMaterialList = (params: ReqPage) => {
 };
 
 export const upAuditMaterialApi = (params: { id: number; status: number; remark: string }) => {
-  return http.post(`/v1/UpAuditMaterial`, params);
+  return http.post(`/UpAuditMaterial`, params);
 };

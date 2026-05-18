@@ -38,8 +38,8 @@ func (r *materialRepository) GetAuditingMaterialList(c context.Context) ([]*mode
 	err := r.DB(c).Omit("LabelName").
 		Where("status = ?", 0).
 		Joins("LEFT JOIN `user` ON `material`.creator_id = `user`.id").
-		Select("`material`.*, `user`.`name` AS `creator_name`").
-		Order("`material`.created_at DESC").
+		Select("`material`.*, `user`.`real_name` AS `creator_name`").
+		Order("`material`.create_time DESC").
 		Find(&materials).Error
 	if err != nil {
 		return nil, err
