@@ -16,4 +16,5 @@ type RouterDeps struct {
 	LabelHandler       *handler.LabelHandler
 	CategoryHandler    *handler.CategoryHandler
 	SubCategoryHandler *handler.SubCategoryHandler
+	MaterialRouter *handler.MaterialHandler
 }

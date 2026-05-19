@@ -35,11 +35,14 @@ func NewHTTPServer(
 		})
 	})
 
+	s.Static("/static", "./static")
+
 	v1 := s.Group("/v1")
 	router.InitUserRouter(deps, v1)
 	router.InitLabelRouter(deps, v1)
 	router.InitCategoryRouter(deps, v1)
 	router.InitSubCategoryRouter(deps, v1)
+	router.InitMaterialRouter(deps, v1)
 
 	return s
 }

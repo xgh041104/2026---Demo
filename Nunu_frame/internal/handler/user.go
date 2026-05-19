@@ -50,7 +50,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 // 创建接口
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
-	var req v1.CreateUserReq
+	var req v1.CreateUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.logger.Error("create user err bind")
 		v1.HandleError(ctx, http.StatusBadRequest, err, nil)
@@ -67,7 +67,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 
 // 修改接口
 func (h *UserHandler) UpdateUser(ctx *gin.Context) {
-	var req v1.UpdateUserReq
+	var req v1.UpdateUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.logger.Error("update user err bind")
 		v1.HandleError(ctx, http.StatusBadRequest, err, nil)
@@ -104,7 +104,7 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 
 // 重置用户密码
 func (h *UserHandler) ResetUserPassword(ctx *gin.Context) {
-	var req v1.ResetUserPasswordReq
+	var req v1.ResetUserPasswordRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.logger.Error("update user err bind")
 		v1.HandleError(ctx, http.StatusBadRequest, err, nil)

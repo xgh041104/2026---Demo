@@ -2,7 +2,7 @@
   <div class="login-form-inner">
     <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
       <el-form-item prop="username">
-        <el-input v-model="loginForm.username" placeholder="用户名:">
+        <el-input v-model="loginForm.account" placeholder="用户名:">
           <template #prefix>
             <el-icon class="el-input__icon">
               <User />
@@ -42,7 +42,7 @@ import { useKeepAliveStore } from "@/stores/modules/keepAlive";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { UserFilled, RefreshRight, User, Lock } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
-import md5 from "md5";
+// import md5 from "md5";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -52,13 +52,13 @@ const keepAliveStore = useKeepAliveStore();
 type FormInstance = InstanceType<typeof ElForm>;
 const loginFormRef = ref<FormInstance>();
 const loginRules = reactive({
-  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+  account: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }]
 });
 
 const loading = ref(false);
 const loginForm = reactive<Login.ReqLoginForm>({
-  username: "",
+  account: "",
   password: ""
 });
 
@@ -68,8 +68,8 @@ const login = (formEl: FormInstance | undefined) => {
     if (!valid) return;
     loading.value = true;
     try {
-      const { data } = await loginApi({ ...loginForm, password: md5(loginForm.password) });
-      userStore.setToken(data.access_token);
+      const { data } = await loginApi({ ...loginForm });
+      userStore.setToken(data.token);
       await initDynamicRouter();
       tabsStore.setTabs([]);
       keepAliveStore.setKeepAliveName([]);

@@ -70,6 +70,20 @@
         "isAffix": false,
         "isKeepAlive": true
       }
+    },
+    {
+      "path": "/reviewCenter/index",
+      "name": "reviewCenter",
+      "component": "/reviewCenter/index",
+      "meta": {
+        "icon": "Stamp",
+        "title": "审核中心",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": true,
+        "isKeepAlive": true
+      }
     }
   ],
   "msg": "成功"
