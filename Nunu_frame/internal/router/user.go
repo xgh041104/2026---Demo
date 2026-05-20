@@ -27,8 +27,5 @@ func InitUserRouter(
 	strictAuthRouter := r.Group("/").Use(middleware.StrictAuth(deps.JWT, deps.Logger))
 	{
 		strictAuthRouter.PUT("/user")
-		strictAuthRouter.PUT("/UpdateUser", deps.UserHandler.UpdateUser)
-		strictAuthRouter.DELETE("/user/:id", deps.UserHandler.DeleteUser)
-		strictAuthRouter.PUT("/ResetUserPassword", deps.UserHandler.ResetUserPassword)
 	}
 }

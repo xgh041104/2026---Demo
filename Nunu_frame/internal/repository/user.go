@@ -12,10 +12,6 @@ type UserRepository interface {
 	FindUserByAccount(ctx context.Context, req *model.User) (*model.User, bool, error)
 	GetUserByAccount(ctx context.Context, account string) (*model.User, bool, error)
 	CreateUser(ctx context.Context, user *model.User) error
-	UpdateUser(ctx context.Context, user *model.User) error
-	DeleteUser(ctx context.Context, id int64) error
-	GetUserById(ctx context.Context, id int64) (*model.User, bool, error)
-	ResetUserPassword(ctx context.Context, user *model.User) error
 }
 
 func NewUserRepository(
@@ -74,29 +70,4 @@ func (r *userRepository) GetUserById(ctx context.Context, id int64) (*model.User
 func (r *userRepository) CreateUser(ctx context.Context, user *model.User) error {
 	return r.DB(ctx).Create(user).Error
 
-}
-
-// 修改用户
-func (r *userRepository) UpdateUser(ctx context.Context, user *model.User) error {
-	return r.DB(ctx).Model(&model.User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
-		"account":     user.Account,
-		"password":    user.Password,
-		"real_name":   user.RealName,
-		"phone":       user.Phone,
-		"email":       user.Email,
-		"type":        user.Type,
-		"is_disabled": user.IsDisabled,
-	}).Error
-}
-
-// 删除用户
-func (r *userRepository) DeleteUser(ctx context.Context, id int64) error {
-	return r.DB(ctx).Delete(&model.User{}, id).Error
-}
-
-// 重置用户密码
-func (r *userRepository) ResetUserPassword(ctx context.Context, user *model.User) error {
-	return r.DB(ctx).Model(&model.User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
-		"password": user.Password,
-	}).Error
 }
