@@ -66,3 +66,38 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 	}
 	v1.HandleSuccess(ctx, nil)
 }
+
+func (h *UserHandler) UpdateUser(ctx *gin.Context) {
+	var req v1.UpdateUserRequest
+	id := ctx.Param("id")
+	userId, _ := strconv.ParseInt(id, 10, 64)
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("update user err bind")
+		v1.HandleError(ctx, http.StatusBadRequest, err, nil)
+		return
+	}
+	err := h.userService.UpdateUser(ctx, &req, uint(userId))
+	if err != nil {
+		h.logger.Error("update user service error")
+		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+		return
+	}
+	v1.HandleSuccess(ctx, nil)
+}
+
+func (h *UserHandler) GetUser(ctx *gin.Context) {
+	var req v1.FindUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("get user err bind")
+		v1.HandleError(ctx, http.StatusBadRequest, err, nil)
+		return
+	}
+	user, err := h.userService.GetUser(ctx, &req)
+	if err != nil {
+		h.logger.Error("get user service error")
+		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+		return
+	}
+	v1.HandleSuccess(ctx, user)
+}

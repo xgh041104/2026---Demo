@@ -14,6 +14,8 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user *model.User) error
 	GetUserById(ctx context.Context, id uint) (*model.User, bool, error)
 	DeleteUser(ctx context.Context, id uint) error
+	UpdateUser(ctx context.Context, updates map[string]interface{}, id uint) error
+	FindUser(ctx context.Context, req *model.User, page, pageSize int) (int64, []*model.User, error)
 }
 
 func NewUserRepository(
@@ -76,4 +78,34 @@ func (r *userRepository) CreateUser(ctx context.Context, user *model.User) error
 
 func (r *userRepository) DeleteUser(ctx context.Context, id uint) error {
 	return r.DB(ctx).Delete(&model.User{}, id).Error
+}
+
+func (r *userRepository) UpdateUser(ctx context.Context, updates map[string]interface{}, id uint) error {
+	return r.DB(ctx).Model(&model.User{}).Where("id = ?", id).Updates(updates).Error
+}
+
+func (r *userRepository) FindUser(ctx context.Context, req *model.User, page, pageSize int) (int64, []*model.User, error) {
+	query := r.DB(ctx).Model(&model.User{})
+	if req.Account != "" {
+		query = query.Where("account LIKE ?", "%"+req.Account+"%")
+	}
+	if req.RealName != "" {
+		query = query.Where("real_name LIKE ?", "%"+req.RealName+"%")
+	}
+	if req.Phone != "" {
+		query = query.Where("phone LIKE ?", "%"+req.Phone+"%")
+	}
+
+	var total int64
+	err := query.Count(&total).Error
+	if err != nil {
+		return 0, nil, err
+	}
+
+	var users []*model.User
+	err = query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&users).Error
+	if err != nil {
+		return 0, nil, err
+	}
+	return total, users, nil
 }

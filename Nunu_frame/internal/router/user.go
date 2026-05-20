@@ -19,14 +19,15 @@ func InitUserRouter(
 	userAuth := r.Group("/user").Use(middleware.LoginRequired(deps.JWT, deps.Logger))
 	{
 		userAuth.GET("/user")
-
+		userAuth.PUT("/updateUser/:id", deps.UserHandler.UpdateUser)
 	}
 
 	// Strict permission routing group
 	admin := r.Group("/admin").Use(middleware.TypeRequired(deps.JWT, deps.Logger, "admin", "root"))
 	{
 		admin.PUT("/user")
-		noAuthRouter.POST("/CreateUser", deps.UserHandler.CreateUser)
+		admin.POST("/CreateUser", deps.UserHandler.CreateUser)
+		admin.GET("/GetUser", deps.UserHandler.GetUser)
 	}
 
 	root := r.Group("/root").Use(middleware.TypeRequired(deps.JWT, deps.Logger, "root"))

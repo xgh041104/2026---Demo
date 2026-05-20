@@ -14,6 +14,8 @@ type UserService interface {
 	Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponse, error)
 	CreateUser(ctx context.Context, req *v1.CreateUserRequest) error
 	DeleteUser(ctx context.Context, id uint) error
+	UpdateUser(ctx context.Context, req *v1.UpdateUserRequest, id uint) error
+	GetUser(ctx context.Context, req *v1.FindUserRequest) (*v1.UserListResponse, error)
 }
 
 func NewUserService(
@@ -101,4 +103,61 @@ func (s *userService) DeleteUser(ctx context.Context, id uint) error {
 		return v1.ErrDeleteUser
 	}
 	return nil
+}
+
+func (s *userService) UpdateUser(ctx context.Context, req *v1.UpdateUserRequest, id uint) error {
+	updates := make(map[string]interface{})
+	if req.Account != "" {
+		updates["account"] = req.Account
+	}
+	if req.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return v1.ErrPasswordEncrypt
+		}
+		updates["password"] = string(hashedPassword)
+	}
+	if req.RealName != "" {
+		updates["real_name"] = req.RealName
+	}
+	if req.Phone != "" {
+		updates["phone"] = req.Phone
+	}
+	if req.Email != "" {
+		updates["email"] = req.Email
+	}
+	if req.Type != "" {
+		updates["type"] = req.Type
+	}
+	updates["is_disabled"] = req.IsDisabled
+
+	err := s.userRepo.UpdateUser(ctx, updates, id)
+	if err != nil {
+		return v1.ErrUpdateUser
+	}
+	return nil
+}
+
+func (s *userService) GetUser(ctx context.Context, req *v1.FindUserRequest) (*v1.UserListResponse, error) {
+
+	total, list, err := s.userRepo.FindUser(ctx, &model.User{
+		Account:  req.Account,
+		RealName: req.RealName,
+		Phone:    req.Phone,
+	}, req.Page, req.PageSize)
+	if err != nil {
+		return nil, v1.ErrUserFailFind
+	}
+	responseList := make([]v1.FindUserResponse, 0, len(list))
+	for _, user := range list {
+		responseList = append(responseList, v1.FindUserResponse{
+			Account:  user.Account,
+			RealName: user.RealName,
+			Phone:    user.Phone,
+		})
+	}
+	return &v1.UserListResponse{
+		Total: total,
+		List:  responseList,
+	}, nil
 }

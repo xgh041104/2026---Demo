@@ -24,6 +24,7 @@ var (
 	ErrUserNotFound      = newError(1004, "用户不存在")
 	ErrUserFailFind      = newError(1005, "用户查询失败")
 	ErrUserNotDisabled   = newError(1006, "用户未禁用,不能删除")
+	ErrUpdateUser        = newError(1007, "更新用户失败")
 
 	//label
 	ErrFindLabel         = newError(1004, "标签查找失败")
