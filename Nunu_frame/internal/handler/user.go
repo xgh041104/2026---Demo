@@ -4,6 +4,7 @@ import (
 	v1 "Nunu_frame/api/v1"
 	"Nunu_frame/internal/service"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -48,6 +49,18 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	err := h.userService.CreateUser(ctx, &req)
 	if err != nil {
 		h.logger.Error("create user service error")
+		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+		return
+	}
+	v1.HandleSuccess(ctx, nil)
+}
+
+func (h *UserHandler) DeleteUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+	userId, _ := strconv.ParseInt(id, 10, 64)
+	err := h.userService.DeleteUser(ctx, uint(userId))
+	if err != nil {
+		h.logger.Error("delete user service error")
 		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}

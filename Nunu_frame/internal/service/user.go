@@ -13,6 +13,7 @@ import (
 type UserService interface {
 	Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponse, error)
 	CreateUser(ctx context.Context, req *v1.CreateUserRequest) error
+	DeleteUser(ctx context.Context, id uint) error
 }
 
 func NewUserService(
@@ -82,4 +83,22 @@ func (s *userService) CreateUser(ctx context.Context, req *v1.CreateUserRequest)
 	})
 }
 
-// 实现修改接口
+func (s *userService) DeleteUser(ctx context.Context, id uint) error {
+	err := s.tm.Transaction(ctx, func(ctx context.Context) error {
+		user, isBool, err := s.userRepo.GetUserById(ctx, id)
+		if err != nil {
+			return v1.ErrFindUser
+		}
+		if !isBool {
+			return v1.ErrFindUser
+		}
+		if user.IsDisabled == 0 {
+			return v1.ErrUserNotDisabled
+		}
+		return s.userRepo.DeleteUser(ctx, id)
+	})
+	if err != nil {
+		return v1.ErrDeleteUser
+	}
+	return nil
+}

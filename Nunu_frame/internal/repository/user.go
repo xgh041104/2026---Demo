@@ -12,6 +12,8 @@ type UserRepository interface {
 	FindUserByAccount(ctx context.Context, req *model.User) (*model.User, bool, error)
 	GetUserByAccount(ctx context.Context, account string) (*model.User, bool, error)
 	CreateUser(ctx context.Context, user *model.User) error
+	GetUserById(ctx context.Context, id uint) (*model.User, bool, error)
+	DeleteUser(ctx context.Context, id uint) error
 }
 
 func NewUserRepository(
@@ -53,7 +55,7 @@ func (r *userRepository) GetUserByAccount(ctx context.Context, account string) (
 }
 
 // 查询用户ID
-func (r *userRepository) GetUserById(ctx context.Context, id int64) (*model.User, bool, error) {
+func (r *userRepository) GetUserById(ctx context.Context, id uint) (*model.User, bool, error) {
 	var user model.User
 	err := r.DB(ctx).Where("id = ?", id).First(&user).Error
 	if err != nil {
@@ -70,4 +72,8 @@ func (r *userRepository) GetUserById(ctx context.Context, id int64) (*model.User
 func (r *userRepository) CreateUser(ctx context.Context, user *model.User) error {
 	return r.DB(ctx).Create(user).Error
 
+}
+
+func (r *userRepository) DeleteUser(ctx context.Context, id uint) error {
+	return r.DB(ctx).Delete(&model.User{}, id).Error
 }
