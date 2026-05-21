@@ -14,16 +14,6 @@ type UserHandler struct {
 	userService service.UserService
 }
 
-type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
-type CreateUserReq struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
 func NewUserHandler(handler *Handler, userService service.UserService) *UserHandler {
 	return &UserHandler{
 		Handler:     handler,
@@ -98,7 +88,7 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 
 func (h *UserHandler) GetUser(ctx *gin.Context) {
 	var req v1.FindUserRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		h.logger.Error("get user err bind")
 		v1.HandleError(ctx, http.StatusBadRequest, err, nil)
 		return

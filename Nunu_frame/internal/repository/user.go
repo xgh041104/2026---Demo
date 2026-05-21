@@ -15,7 +15,7 @@ type UserRepository interface {
 	GetUserById(ctx context.Context, id uint) (*model.User, bool, error)
 	DeleteUser(ctx context.Context, id uint) error
 	UpdateUser(ctx context.Context, updates map[string]interface{}, id uint) error
-	FindUser(ctx context.Context, req *model.User, page, pageSize int) (int64, []*model.User, error)
+	FindUser(ctx context.Context, userInfo *model.User, page, pageSize int) (int64, []*model.User, error)
 }
 
 func NewUserRepository(
@@ -84,28 +84,31 @@ func (r *userRepository) UpdateUser(ctx context.Context, updates map[string]inte
 	return r.DB(ctx).Model(&model.User{}).Where("id = ?", id).Updates(updates).Error
 }
 
-func (r *userRepository) FindUser(ctx context.Context, req *model.User, page, pageSize int) (int64, []*model.User, error) {
+func (r *userRepository) FindUser(ctx context.Context, userInfo *model.User, page, pageSize int) (int64, []*model.User, error) {
+	// 1. 构建基础查询（只拼条件，不执行）
 	query := r.DB(ctx).Model(&model.User{})
-	if req.Account != "" {
-		query = query.Where("account LIKE ?", "%"+req.Account+"%")
+	if userInfo.Account != "" {
+		query = query.Where("account LIKE ?", "%"+userInfo.Account+"%")
 	}
-	if req.RealName != "" {
-		query = query.Where("real_name LIKE ?", "%"+req.RealName+"%")
+	if userInfo.RealName != "" {
+		query = query.Where("real_name LIKE ?", "%"+userInfo.RealName+"%")
 	}
-	if req.Phone != "" {
-		query = query.Where("phone LIKE ?", "%"+req.Phone+"%")
+	if userInfo.Phone != "" {
+		query = query.Where("phone LIKE ?", "%"+userInfo.Phone+"%")
 	}
 
+	// 2. 查询总数：必须用 Session(&gorm.Session{}) 克隆查询，避免污染
 	var total int64
-	err := query.Count(&total).Error
-	if err != nil {
+	if err := query.Session(&gorm.Session{}).Count(&total).Error; err != nil {
 		return 0, nil, err
 	}
 
+	// 3. 分页查询数据：在原始 query 上追加分页，不会被污染
 	var users []*model.User
-	err = query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&users).Error
-	if err != nil {
+	offset := (page - 1) * pageSize
+	if err := query.Offset(offset).Limit(pageSize).Find(&users).Error; err != nil {
 		return 0, nil, err
 	}
+
 	return total, users, nil
 }

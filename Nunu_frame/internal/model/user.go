@@ -17,5 +17,5 @@ type User struct {
 }
 
 func (u *User) TableName() string {
-	return "user" // 如果你想完全按图片标题来，这里写 user
+	return "users" // 如果你想完全按图片标题来，这里写 user
 }

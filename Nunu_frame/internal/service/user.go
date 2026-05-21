@@ -5,6 +5,7 @@ import (
 	"Nunu_frame/internal/model"
 	"Nunu_frame/internal/repository"
 	"context"
+	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -148,8 +149,10 @@ func (s *userService) GetUser(ctx context.Context, req *v1.FindUserRequest) (*v1
 	if err != nil {
 		return nil, v1.ErrUserFailFind
 	}
+	fmt.Println("-------------------------------", total, list)
 	responseList := make([]v1.FindUserResponse, 0, len(list))
 	for _, user := range list {
+
 		responseList = append(responseList, v1.FindUserResponse{
 			Account:  user.Account,
 			RealName: user.RealName,

@@ -251,7 +251,7 @@ func (h *MaterialHandler) DeletePcMaterial(c *gin.Context) {
 		v1.HandleError(c, http.StatusInternalServerError, err, nil)
 		return
 	}
-	v1.HandleSuccess(c, gin.H{"MaterialId": req.Id, "msg": "success"})
+	v1.HandleSuccess(c, nil)
 }
 
 // 素材页面 - 搜索
