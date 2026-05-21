@@ -14,21 +14,25 @@ func InitUserRouter(
 	noAuthRouter := r.Group("/")
 	{
 		noAuthRouter.POST("/loginUser", deps.UserHandler.Login)
-		noAuthRouter.POST("/CreateUser", deps.UserHandler.CreateUser)
 	}
 	// Non-strict permission routing group
-	noStrictAuthRouter := r.Group("/").Use(middleware.NoStrictAuth(deps.JWT, deps.Logger))
+	userAuth := r.Group("/user").Use(middleware.LoginRequired(deps.JWT, deps.Logger))
 	{
-		noStrictAuthRouter.GET("/user")
-
+		userAuth.GET("/user")
+		userAuth.PUT("/updateUser/:id", deps.UserHandler.UpdateUser)
 	}
 
 	// Strict permission routing group
-	strictAuthRouter := r.Group("/").Use(middleware.StrictAuth(deps.JWT, deps.Logger))
+	admin := r.Group("/admin").Use(middleware.TypeRequired(deps.JWT, deps.Logger, "admin", "root"))
 	{
-		strictAuthRouter.PUT("/user")
-		strictAuthRouter.PUT("/UpdateUser", deps.UserHandler.UpdateUser)
-		strictAuthRouter.DELETE("/user/:id", deps.UserHandler.DeleteUser)
-		strictAuthRouter.PUT("/ResetUserPassword", deps.UserHandler.ResetUserPassword)
+		admin.PUT("/user")
+		admin.POST("/CreateUser", deps.UserHandler.CreateUser)
+		admin.GET("/GetUser", deps.UserHandler.GetUser)
+	}
+
+	root := r.Group("/root").Use(middleware.TypeRequired(deps.JWT, deps.Logger, "root"))
+	{
+		root.PUT("/user")
+		root.DELETE("/user/:id", deps.UserHandler.DeleteUser)
 	}
 }
