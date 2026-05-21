@@ -9,3 +9,7 @@ export const getMaterialList = (params: ReqPage) => {
 export const upAuditMaterialApi = (params: { id: number; status: number; remark: string }) => {
   return http.post(`/v1/UpAuditMaterial`, params);
 };
+
+export const saveMaterialApi = (params: FormData) => {
+  return http.post(`/v1/SaveMaterial`, params);
+};

@@ -6,25 +6,25 @@
       label-width="100px"
       ref="formRef"
     >
-      <el-form-item label="素材名称" prop="name">
-        <el-input v-model="formData.name" placeholder="请输入素材名称" />
+      <el-form-item label="素材标题" prop="title">
+        <el-input v-model="formData.title" placeholder="请输入素材标题" />
       </el-form-item>
-      <el-form-item label="素材分类" prop="category">
-        <el-select v-model="formData.category" placeholder="请选择分类" style="width: 100%">
-          <el-option label="摄影图片" value="摄影图片" />
-          <el-option label="高清视频" value="高清视频" />
-          <el-option label="图标" value="图标" />
-          <el-option label="宣传海报" value="宣传海报" />
-          <el-option label="项目报告" value="项目报告" />
+      <el-form-item label="素材分类" prop="category_id">
+        <el-select v-model="formData.category_id" placeholder="请选择分类" style="width: 100%">
+          <el-option label="摄影图片" :value="1" />
+          <el-option label="高清视频" :value="2" />
+          <el-option label="图标" :value="3" />
+          <el-option label="宣传海报" :value="4" />
+          <el-option label="项目报告" :value="5" />
         </el-select>
       </el-form-item>
-      <el-form-item label="素材标签" prop="tags">
-        <el-select v-model="formData.tags" placeholder="请选择标签" style="width: 100%" multiple>
-          <el-option label="风景" value="风景" />
-          <el-option label="建筑" value="建筑" />
-          <el-option label="人物" value="人物" />
-          <el-option label="花卉" value="花卉" />
-          <el-option label="动物" value="动物" />
+      <el-form-item label="素材标签" prop="label_id">
+        <el-select v-model="formData.label_id" placeholder="请选择标签" style="width: 100%" multiple>
+          <el-option label="风景" :value="1" />
+          <el-option label="建筑" :value="2" />
+          <el-option label="人物" :value="3" />
+          <el-option label="花卉" :value="4" />
+          <el-option label="动物" :value="5" />
         </el-select>
       </el-form-item>
       <el-form-item label="上传文件" prop="file">
@@ -34,6 +34,7 @@
           :auto-upload="false"
           :on-change="handleFileChange"
           :limit="1"
+          :accept="acceptTypes"
         >
           <el-icon class="el-icon--upload"><upload-filled /></el-icon>
           <div class="el-upload__text">
@@ -53,7 +54,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="handleCancel">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="submitLoading">确定</el-button>
       </span>
     </template>
   </el-dialog>
@@ -63,11 +64,13 @@
 import { ref, computed, watch } from "vue";
 import { FormRules, ElMessage } from "element-plus";
 import { UploadFilled } from "@element-plus/icons-vue";
+import { saveMaterialApi } from "@/api/modules/material";
+import { useUserStore } from "@/stores/modules/user";
 
 interface FodderFormData {
-  name: string;
-  category: string;
-  tags: string[];
+  title: string;
+  category_id: number | null;
+  label_id: number[];
   file: File | null;
   remark: string;
 }
@@ -79,6 +82,8 @@ const props = defineProps({
 });
 
 const emits = defineEmits(["update:visible", "refresh"]);
+
+const userStore = useUserStore();
 
 const dialogVisible = computed({
   get: () => props.visible,
@@ -99,21 +104,24 @@ const dialogTitle = computed(() => {
 });
 
 const formRef = ref();
+const submitLoading = ref(false);
 const formData = ref<FodderFormData>({
-  name: "",
-  category: "",
-  tags: [],
+  title: "",
+  category_id: null,
+  label_id: [],
   file: null,
   remark: ""
 });
 
+const acceptTypes = ".jpg,.jpeg,.png,.mp4";
+
 const formRules: FormRules = {
-  name: [
-    { required: true, message: "请输入素材名称", trigger: "blur" },
+  title: [
+    { required: true, message: "请输入素材标题", trigger: "blur" },
     { min: 1, max: 100, message: "长度在 1 到 100 个字符", trigger: "blur" }
   ],
-  category: [{ required: true, message: "请选择素材分类", trigger: "change" }],
-  tags: [{ required: true, message: "请选择素材标签", trigger: "change" }]
+  category_id: [{ required: true, message: "请选择素材分类", trigger: "change" }],
+  label_id: [{ required: true, message: "请选择素材标签", trigger: "change" }]
 };
 
 watch(
@@ -121,9 +129,9 @@ watch(
   (val) => {
     if (val && props.info && Object.keys(props.info).length > 0) {
       formData.value = {
-        name: props.info.name || "",
-        category: props.info.category || "",
-        tags: props.info.tags || [],
+        title: props.info.title || "",
+        category_id: props.info.category_id || null,
+        label_id: props.info.label_id || [],
         file: null,
         remark: props.info.remark || ""
       };
@@ -135,9 +143,9 @@ watch(
 
 const resetForm = () => {
   formData.value = {
-    name: "",
-    category: "",
-    tags: [],
+    title: "",
+    category_id: null,
+    label_id: [],
     file: null,
     remark: ""
   };
@@ -146,16 +154,49 @@ const resetForm = () => {
 };
 
 const handleFileChange = (file: any) => {
+  const isLt10M = file.size / 1024 / 1024 < 10;
+  if (!isLt10M) {
+    ElMessage.error("文件大小不能超过 10MB");
+    return;
+  }
   formData.value.file = file.raw;
 };
 
 const handleSubmit = () => {
-  formRef.value?.validate((valid: boolean) => {
+  formRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      console.log("提交表单数据:", formData.value);
-      ElMessage.success("操作成功");
-      emits("refresh");
-      dialogVisible.value = false;
+      if (!formData.value.file) {
+        ElMessage.error("请上传素材文件");
+        return;
+      }
+
+      submitLoading.value = true;
+      try {
+        const submitData = new FormData();
+        submitData.append("file", formData.value.file);
+        submitData.append("creator_id", String(userStore.userInfo.id || 1));
+        submitData.append("status", "0");
+        submitData.append("label_id", formData.value.label_id.join(","));
+        if (formData.value.category_id) {
+          submitData.append("category_id", String(formData.value.category_id));
+        }
+        if (formData.value.title) {
+          submitData.append("title", formData.value.title);
+        }
+        if (formData.value.remark) {
+          submitData.append("remark", formData.value.remark);
+        }
+
+        await saveMaterialApi(submitData);
+        ElMessage.success("新增素材成功");
+        emits("refresh");
+        dialogVisible.value = false;
+      } catch (error) {
+        console.error("新增素材失败:", error);
+        ElMessage.error("新增素材失败");
+      } finally {
+        submitLoading.value = false;
+      }
     } else {
       ElMessage.error("请填写完整信息");
     }

@@ -2,8 +2,15 @@
   <div class="fodder-container">
     <!-- 左侧树形菜单 -->
     <div class="sidebar">
-      <el-tree :data="treeData" :props="treeProps" @node-click="handleNodeClick" default-expand-all highlight-current
-        :current-node-key="currentNodeKey" node-key="id">
+      <el-tree
+        :data="treeData"
+        :props="treeProps"
+        @node-click="handleNodeClick"
+        default-expand-all
+        highlight-current
+        :current-node-key="currentNodeKey"
+        node-key="id"
+      >
         <template #default="{ node, data }">
           <span class="tree-node-label">
             <el-icon v-if="data.icon" class="node-icon">
@@ -25,8 +32,13 @@
 
       <!-- 搜索和操作区域 -->
       <div class="toolbar">
-        <el-input v-model="searchKeyword" placeholder="请输入素材名称搜索" class="search-input" clearable
-          @keyup.enter="handleSearch">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="请输入素材名称搜索"
+          class="search-input"
+          clearable
+          @keyup.enter="handleSearch"
+        >
           <template #prefix>
             <el-icon>
               <Search />
@@ -98,8 +110,7 @@
     </div>
 
     <!-- 新增/编辑素材弹窗 -->
-    <formDetail v-model:visible="dialogVisible" :type="dialogType" :info="currentItem || undefined"
-      @refresh="handleRefresh" />
+    <formDetail v-model:visible="dialogVisible" :type="dialogType" :info="currentItem || undefined" @refresh="handleRefresh" />
   </div>
 </template>
 
@@ -176,19 +187,89 @@ const dialogType = ref(1);
 const currentItem = ref<FodderItem | null>(null);
 
 const mockImages: FodderItem[] = [
-  { id: 1, name: "龟山电视塔.JPG", thumbnail: "https://picsum.photos/300/200?random=1", type: "图片", time: "2026-03-29 08:12:07", category: "摄影图片" },
-  { id: 2, name: "风景图片4.JPG", thumbnail: "https://picsum.photos/300/200?random=2", type: "图片", time: "2026-03-27 07:53:48", category: "摄影图片" },
-  { id: 3, name: "风景照片3.JPG", thumbnail: "https://picsum.photos/300/200?random=3", type: "图片", time: "2026-03-27 10:25:38", category: "摄影图片" },
-  { id: 4, name: "风景图片2.JPG", thumbnail: "https://picsum.photos/300/200?random=4", type: "图片", time: "2026-03-25 05:27:46", category: "摄影图片" },
-  { id: 5, name: "革命烈士纪念馆", thumbnail: "https://picsum.photos/300/200?random=5", type: "图片", time: "2026-04-14 03:24:54", category: "摄影图片" },
-  { id: 6, name: "荷花特写6.JPG", thumbnail: "https://picsum.photos/300/200?random=6", type: "图片", time: "2026-04-14 03:24:54", category: "摄影图片" },
-  { id: 7, name: "荷花特写5.JPG", thumbnail: "https://picsum.photos/300/200?random=7", type: "图片", time: "2026-04-14 03:24:54", category: "摄影图片" },
-  { id: 8, name: "荷花特写4.JPG", thumbnail: "https://picsum.photos/300/200?random=8", type: "图片", time: "2026-04-14 03:24:54", category: "摄影图片" }
+  {
+    id: 1,
+    name: "龟山电视塔.JPG",
+    thumbnail: "https://picsum.photos/300/200?random=1",
+    type: "图片",
+    time: "2026-03-29 08:12:07",
+    category: "摄影图片"
+  },
+  {
+    id: 2,
+    name: "风景图片4.JPG",
+    thumbnail: "https://picsum.photos/300/200?random=2",
+    type: "图片",
+    time: "2026-03-27 07:53:48",
+    category: "摄影图片"
+  },
+  {
+    id: 3,
+    name: "风景照片3.JPG",
+    thumbnail: "https://picsum.photos/300/200?random=3",
+    type: "图片",
+    time: "2026-03-27 10:25:38",
+    category: "摄影图片"
+  },
+  {
+    id: 4,
+    name: "风景图片2.JPG",
+    thumbnail: "https://picsum.photos/300/200?random=4",
+    type: "图片",
+    time: "2026-03-25 05:27:46",
+    category: "摄影图片"
+  },
+  {
+    id: 5,
+    name: "革命烈士纪念馆",
+    thumbnail: "https://picsum.photos/300/200?random=5",
+    type: "图片",
+    time: "2026-04-14 03:24:54",
+    category: "摄影图片"
+  },
+  {
+    id: 6,
+    name: "荷花特写6.JPG",
+    thumbnail: "https://picsum.photos/300/200?random=6",
+    type: "图片",
+    time: "2026-04-14 03:24:54",
+    category: "摄影图片"
+  },
+  {
+    id: 7,
+    name: "荷花特写5.JPG",
+    thumbnail: "https://picsum.photos/300/200?random=7",
+    type: "图片",
+    time: "2026-04-14 03:24:54",
+    category: "摄影图片"
+  },
+  {
+    id: 8,
+    name: "荷花特写4.JPG",
+    thumbnail: "https://picsum.photos/300/200?random=8",
+    type: "图片",
+    time: "2026-04-14 03:24:54",
+    category: "摄影图片"
+  }
 ];
 
 const mockVideos: FodderItem[] = [
-  { id: 101, name: "高清视频1.mp4", thumbnail: "https://picsum.photos/300/200?random=11", type: "视频", time: "2026-03-29 08:12:07", category: "高清视频" },
-  { id: 102, name: "高清视频2.mp4", thumbnail: "https://picsum.photos/300/200?random=12", type: "视频", time: "2026-03-27 07:53:48", category: "高清视频" }
+  {
+    id: 101,
+    name: "高清视频1.mp4",
+    thumbnail: "https://picsum.photos/300/200?random=11",
+    type: "视频",
+    time: "2026-03-29 08:12:07",
+    category: "高清视频"
+  },
+  {
+    id: 102,
+    name: "高清视频2.mp4",
+    thumbnail: "https://picsum.photos/300/200?random=12",
+    type: "视频",
+    time: "2026-03-27 07:53:48",
+    category: "高清视频"
+  }
 ];
 
 const filteredImages = computed(() => {
@@ -246,88 +327,73 @@ const handleRefresh = () => {
   overflow: hidden;
   background-color: #f5f7fa;
 }
-
 .sidebar {
   width: 220px;
+  padding: 16px 0;
+  overflow-y: auto;
   background-color: #ffffff;
   border-right: 1px solid #e4e7ed;
-  overflow-y: auto;
-  padding: 16px 0;
 }
-
 .tree-node-label {
   display: flex;
-  align-items: center;
   gap: 6px;
+  align-items: center;
 }
-
 .node-icon {
   font-size: 16px;
 }
-
 .content-area {
   flex: 1;
   padding: 20px 24px;
   overflow-y: auto;
   background-color: #ffffff;
 }
-
 .breadcrumb {
   margin-bottom: 20px;
 }
-
 .toolbar {
   display: flex;
-  align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
+  align-items: center;
   padding-bottom: 20px;
+  margin-bottom: 20px;
   border-bottom: 1px solid #e4e7ed;
 }
-
 .search-input {
   width: 300px;
 }
-
 .tag-select {
   width: 200px;
 }
-
 .action-btn {
   background-color: #009688;
   border-color: #009688;
 }
-
 .action-btn:hover {
   background-color: #00796b;
   border-color: #00796b;
 }
-
 .content-tabs {
   margin-top: 16px;
 }
-
 .image-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
   padding: 16px 0;
 }
-
 .image-card {
+  overflow: hidden;
+  cursor: pointer;
   background-color: #ffffff;
   border: 1px solid #e4e7ed;
   border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
   transition: all 0.3s;
 }
-
 .image-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
   transform: translateY(-2px);
 }
-
 .image-wrapper {
   position: relative;
   width: 100%;
@@ -335,59 +401,47 @@ const handleRefresh = () => {
   overflow: hidden;
   background-color: #f5f7fa;
 }
-
 .card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .video-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgb(0 0 0 / 30%);
 }
-
 .play-icon {
   font-size: 48px;
   color: #ffffff;
 }
-
 .card-info {
   padding: 12px;
 }
-
 .card-name {
-  font-size: 14px;
-  color: #303133;
   margin-bottom: 8px;
   overflow: hidden;
+  font-size: 14px;
+  color: #303133;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .card-meta {
   display: flex;
+  gap: 8px;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
 }
-
 .card-time {
   font-size: 12px;
   color: #909399;
 }
-
 :deep(.el-tabs__header) {
   margin-bottom: 0;
 }
-
 :deep(.el-tabs__nav-wrap::after) {
   height: 1px;
 }
