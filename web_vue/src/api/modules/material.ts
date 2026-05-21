@@ -3,11 +3,11 @@ import http from "@/api";
 
 export const getMaterialList = (params: ReqPage) => {
 
-  return http.put<ResMaterial<Material.ReqMaterial>>(`/v1/UpdateAuditingMaterialList`, params);
+  return http.get<ResMaterial<Material.ReqMaterial>>(`/GetAuditingMaterialList`, params);
 };
 
 export const upAuditMaterialApi = (params: { id: number; status: number; remark: string }) => {
-  return http.post(`/v1/UpAuditMaterial`, params);
+  return http.post(`/UpAuditMaterial`, params);
 };
 
 export const saveMaterialApi = (params: FormData) => {

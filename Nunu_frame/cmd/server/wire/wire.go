@@ -29,6 +29,7 @@ var repositorySet = wire.NewSet(
 	repository.NewUserRepository,
 	repository.NewLabelRepository,
 	repository.NewCategoryRepository,
+	repository.NewSubCategoryRepository,
 	repository.NewMaterialRepository,
 )
 
@@ -37,6 +38,7 @@ var serviceSet = wire.NewSet(
 	service.NewUserService,
 	service.NewLabelService,
 	service.NewCategoryService,
+	service.NewSubCategoryService,
 	service.NewMaterialService,
 )
 
@@ -45,7 +47,8 @@ var handlerSet = wire.NewSet(
 	handler.NewUserHandler,
 	handler.NewLabelHandler,
 	handler.NewCategoryHandler,
-	handler.NewHandler,
+	handler.NewSubCategoryHandler,
+	handler.NewMaterialHandler,
 )
 
 // ... existing code ...

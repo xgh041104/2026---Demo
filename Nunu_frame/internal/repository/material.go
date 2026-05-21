@@ -11,7 +11,7 @@ import (
 type MaterialRepository interface {
 	GetAuditingMaterialList(c context.Context) ([]*model.Material, error)
 	SaveMaterial(c context.Context, req *model.Material) error
-	GetMaterialList(c context.Context) ([]*model.Material, error)
+	GetMaterialList(c context.Context, req *v1.ReqSearchMaterial) ([]*model.Material, error)
 	GetLabelNameStr(c context.Context, LabelIdStr string) (string, error)
 	HomeMaterialData(c context.Context, status int) (int64, error)
 	MaterialUploadTrend(c context.Context, status int) ([]int64, error)
@@ -38,8 +38,8 @@ func (r *materialRepository) GetAuditingMaterialList(c context.Context) ([]*mode
 	err := r.DB(c).Omit("LabelName").
 		Where("status = ?", 0).
 		Joins("LEFT JOIN `user` ON `material`.creator_id = `user`.id").
-		Select("`material`.*, `user`.`name` AS `creator_name`").
-		Order("`material`.created_at DESC").
+		Select("`material`.*, `user`.`real_name` AS `creator_name`").
+		Order("`material`.create_time DESC").
 		Find(&materials).Error
 	if err != nil {
 		return nil, err
@@ -63,12 +63,28 @@ func (r *materialRepository) SaveMaterial(c context.Context, req *model.Material
 	return nil
 }
 
-func (r *materialRepository) GetMaterialList(c context.Context) ([]*model.Material, error) {
+func (r *materialRepository) GetMaterialList(c context.Context, req *v1.ReqSearchMaterial) ([]*model.Material, error) {
+	categoryId := req.CategoryId
+	name := req.Name
+	labelId := req.LabelId
 	var materials []*model.Material
-	err := r.DB(c).Omit("CreatorName", "LabelName").Order("`material`.created_at DESC").Find(&materials).Error
+	db := r.DB(c).Omit("CreatorName", "LabelName")
+	if categoryId != 0 {
+		db = db.Where("category_id = ?", categoryId)
+	}
+	if labelId != 0 {
+		db = db.Where("FIND_IN_SET(?, label_id)", labelId)
+	}
+	if name != "" {
+		db = db.Where("name LIKE ?", "%"+name+"%")
+	}
+	err := db.Order("create_time DESC").
+		Find(&materials).
+		Error
 	if err != nil {
 		return nil, err
 	}
+
 	return materials, nil
 }
 
@@ -109,7 +125,7 @@ func (r *materialRepository) HomeMaterialData(c context.Context, status int) (in
 	case 2:
 		today := time.Now().Format("2006-01-02")
 		err := r.DB(c).Table("material").
-			Where("DATE(created_at) = ?", today).
+			Where("DATE(create_time) = ?", today).
 			Count(&total).Error
 		if err != nil {
 			return 0, err
@@ -149,8 +165,8 @@ func (r *materialRepository) MaterialUploadTrend(c context.Context, status int) 
 
 	var rows []TempRow
 	err := r.DB(c).Table("material").
-		Where("created_at >= ?", startDay).
-		Select("DATE(created_at) AS day, " + sqlCase).
+		Where("create_time >= ?", startDay).
+		Select("DATE(create_time) AS day, " + sqlCase).
 		Group("day").
 		Order("day ASC").
 		Find(&rows).Error
@@ -222,7 +238,7 @@ func (r *materialRepository) GetPcUrlDataList(c context.Context, req *v1.PcData)
 	var materials []*model.Material
 	err := r.DB(c).Omit("CreatorName", "LabelName").
 		Where("creator_id = ? AND status = ?", Id, status).
-		Order("created_at DESC").
+		Order("create_time DESC").
 		Find(&materials).
 		Error
 	if err != nil {
