@@ -25,7 +25,8 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
     // devTools
     VITE_DEVTOOLS && NextDevTools({ launchEditor: "code" }),
     // esLint 报错信息显示在浏览器界面上
-    eslintPlugin(),
+    // failOnError 默认 true：在 TS 5.6+ 与旧 typescript-eslint 组合下易误报并阻断模块加载，导致 #app 一直停在 index.html 转圈
+    eslintPlugin({ failOnWarning: false, failOnError: false, emitWarning: true, emitError: true }),
     // name 可以写在 script 标签上
     vueSetupExtend({}),
     // 创建打包压缩配置

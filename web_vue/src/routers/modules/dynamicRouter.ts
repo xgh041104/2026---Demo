@@ -4,6 +4,7 @@ import { RouteRecordRaw } from "vue-router";
 import { ElNotification } from "element-plus";
 import { useUserStore } from "@/stores/modules/user";
 import { useAuthStore } from "@/stores/modules/auth";
+import { useTabsStore } from "@/stores/modules/tabs";
 
 // 引入 views 文件夹下所有 vue 文件
 const modules = import.meta.glob("@/views/**/*.vue");
@@ -16,7 +17,6 @@ export const initDynamicRouter = async () => {
   const authStore = useAuthStore();
 
   try {
-    // 1.获取菜单列表 && 按钮权限列表
     await authStore.getAuthMenuList();
     await authStore.getAuthButtonList();
 
@@ -35,7 +35,7 @@ export const initDynamicRouter = async () => {
 
     // 3.添加动态路由
     authStore.flatMenuListGet.forEach(item => {
-      item.children && delete item.children;
+      if (item.children) delete item.children;
       if (item.component && typeof item.component == "string") {
         item.component = modules["/src/views" + item.component + ".vue"];
       }
@@ -45,6 +45,9 @@ export const initDynamicRouter = async () => {
         router.addRoute("layout", item as unknown as RouteRecordRaw);
       }
     });
+
+    // 清理本地持久化里已不在菜单中的标签（避免「登录界面」等旧路由仍显示在 Tabs）
+    useTabsStore().pruneTabsToAuthMenu();
   } catch (error) {
     // 当按钮 || 菜单请求出错时，重定向到登陆页
     userStore.setToken("");

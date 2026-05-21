@@ -24,6 +24,10 @@
         .logo-img {
           width: 28px;
           object-fit: contain;
+          &--camera {
+            width: auto;
+            color: var(--el-aside-logo-text-color);
+          }
         }
         .logo-text {
           margin-left: 6px;

@@ -4,11 +4,11 @@ package v1
 // 对应schooldemo数据库中的classification 表
 type GetClassReq struct {
 	Id        int    `json:"id"`
-	className string `json:"className"`
+	ClassName string `json:"className"`
 }
 
 type GetClassSReq struct {
 	Id      int    `json:"id"`
-	name    string `json:"name"`
-	classId int    `json:"classId"`
+	Name    string `json:"name"`
+	ClassId int    `json:"classId"`
 }

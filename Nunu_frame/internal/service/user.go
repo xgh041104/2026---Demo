@@ -12,10 +12,10 @@ import (
 
 type UserService interface {
 	Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponse, error)
-	CreateUser(ctx context.Context, req *v1.CreateUserReq) error
-	UpdateUser(ctx context.Context, req *v1.UpdateUserReq) error
-	DeleteUser(ctx context.Context, UserId int64) error
-	ResetUserPassword(ctx context.Context, req *v1.ResetUserPasswordReq) error
+	CreateUser(ctx context.Context, req *v1.CreateUserRequest) error
+	DeleteUser(ctx context.Context, id uint) error
+	UpdateUser(ctx context.Context, req *v1.UpdateUserRequest, id uint) error
+	GetUser(ctx context.Context, req *v1.FindUserRequest) (*v1.UserListResponse, error)
 }
 
 func NewUserService(
@@ -63,7 +63,7 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.Logi
 
 //实现创建用户
 
-func (s *userService) CreateUser(ctx context.Context, req *v1.CreateUserReq) error {
+func (s *userService) CreateUser(ctx context.Context, req *v1.CreateUserRequest) error {
 	//判断用户是否存在
 	_, isBool, err := s.userRepo.GetUserByAccount(ctx, req.Account)
 	if err != nil {
@@ -85,69 +85,79 @@ func (s *userService) CreateUser(ctx context.Context, req *v1.CreateUserReq) err
 	})
 }
 
-// 实现修改接口
-func (s *userService) UpdateUser(ctx context.Context, req *v1.UpdateUserReq) error {
-	//判断用户是否存在
-	user, isBool, err := s.userRepo.GetUserByAccount(ctx, req.Account)
+func (s *userService) DeleteUser(ctx context.Context, id uint) error {
+	err := s.tm.Transaction(ctx, func(ctx context.Context) error {
+		user, isBool, err := s.userRepo.GetUserById(ctx, id)
+		if err != nil {
+			return v1.ErrFindUser
+		}
+		if !isBool {
+			return v1.ErrFindUser
+		}
+		if user.IsDisabled == 0 {
+			return v1.ErrUserNotDisabled
+		}
+		return s.userRepo.DeleteUser(ctx, id)
+	})
 	if err != nil {
-		return v1.ErrNotFindUser
+		return v1.ErrDeleteUser
 	}
-	if !isBool {
-		return v1.ErrNotFindUser
-	}
-	//密码加密存储
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return v1.ErrPasswordEncrypt
-	}
-
-	//修改用户信息（复用查询到的 user，保留其 ID）
-	user.Email = req.Email
-	user.Password = string(hashedPassword)
-	user.Phone = req.Phone
-	user.RealName = req.RealName
-
-	return s.userRepo.UpdateUser(ctx, user)
-
+	return nil
 }
 
-// 实现删除接口
-func (s *userService) DeleteUser(ctx context.Context, UserId int64) error {
-	//判断用户是否存在
-	user, isBool, err := s.userRepo.GetUserById(ctx, UserId)
+func (s *userService) UpdateUser(ctx context.Context, req *v1.UpdateUserRequest, id uint) error {
+	updates := make(map[string]interface{})
+	if req.Account != "" {
+		updates["account"] = req.Account
+	}
+	if req.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return v1.ErrPasswordEncrypt
+		}
+		updates["password"] = string(hashedPassword)
+	}
+	if req.RealName != "" {
+		updates["real_name"] = req.RealName
+	}
+	if req.Phone != "" {
+		updates["phone"] = req.Phone
+	}
+	if req.Email != "" {
+		updates["email"] = req.Email
+	}
+	if req.Type != "" {
+		updates["type"] = req.Type
+	}
+	updates["is_disabled"] = req.IsDisabled
+
+	err := s.userRepo.UpdateUser(ctx, updates, id)
 	if err != nil {
-		return v1.ErrNotFindUser
+		return v1.ErrUpdateUser
 	}
-	if !isBool {
-		return v1.ErrNotFindUser
-	}
-
-	//删除用户信息
-	return s.userRepo.DeleteUser(ctx, int64(user.ID))
-
+	return nil
 }
 
-// 实现重置用户密码
-func (s *userService) ResetUserPassword(ctx context.Context, req *v1.ResetUserPasswordReq) error {
-	//判断用户是否存在
-	user, isBool, err := s.userRepo.GetUserByAccount(ctx, req.Account)
+func (s *userService) GetUser(ctx context.Context, req *v1.FindUserRequest) (*v1.UserListResponse, error) {
+
+	total, list, err := s.userRepo.FindUser(ctx, &model.User{
+		Account:  req.Account,
+		RealName: req.RealName,
+		Phone:    req.Phone,
+	}, req.Page, req.PageSize)
 	if err != nil {
-		return v1.ErrNotFindUser
+		return nil, v1.ErrUserFailFind
 	}
-	if !isBool {
-		return v1.ErrNotFindUser
+	responseList := make([]v1.FindUserResponse, 0, len(list))
+	for _, user := range list {
+		responseList = append(responseList, v1.FindUserResponse{
+			Account:  user.Account,
+			RealName: user.RealName,
+			Phone:    user.Phone,
+		})
 	}
-
-	password := "123456"
-	//密码加密存储
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return v1.ErrPasswordEncrypt
-	}
-
-	//修改用户信息（复用查询到的 user，保留其 ID）
-	user.Password = string(hashedPassword)
-
-	return s.userRepo.ResetUserPassword(ctx, user)
-
+	return &v1.UserListResponse{
+		Total: total,
+		List:  responseList,
+	}, nil
 }

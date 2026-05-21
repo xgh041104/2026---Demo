@@ -2,10 +2,18 @@ import router from "@/routers";
 import { defineStore } from "pinia";
 import { getUrlWithParams } from "@/utils";
 import { useKeepAliveStore } from "./keepAlive";
+import { useAuthStore } from "@/stores/modules/auth";
 import { TabsState, TabsMenuProps } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 
-const keepAliveStore = useKeepAliveStore();
+const getKeepAliveStore = () => useKeepAliveStore();
+
+/** 与菜单 path 对齐（兼容 hash 模式下 #/path） */
+const tabPathKey = (path: string) => {
+  const noQuery = path.split("?")[0];
+  if (noQuery.startsWith("#")) return noQuery.slice(1) || "/";
+  return noQuery;
+};
 
 export const useTabsStore = defineStore({
   id: "geeker-tabs",
@@ -19,8 +27,8 @@ export const useTabsStore = defineStore({
         this.tabsMenuList.push(tabItem);
       }
       // add keepalive
-      if (!keepAliveStore.keepAliveName.includes(tabItem.name) && tabItem.isKeepAlive) {
-        keepAliveStore.addKeepAliveName(tabItem.path);
+      if (!getKeepAliveStore().keepAliveName.includes(tabItem.name) && tabItem.isKeepAlive) {
+        getKeepAliveStore().addKeepAliveName(tabItem.path);
       }
     },
     // Remove Tabs
@@ -35,7 +43,7 @@ export const useTabsStore = defineStore({
       }
       // remove keepalive
       const tabItem = this.tabsMenuList.find(item => item.path === tabPath);
-      tabItem?.isKeepAlive && keepAliveStore.removeKeepAliveName(tabItem.path);
+      if (tabItem?.isKeepAlive) getKeepAliveStore().removeKeepAliveName(tabItem.path);
       // set tabs
       this.tabsMenuList = this.tabsMenuList.filter(item => item.path !== tabPath);
     },
@@ -50,7 +58,7 @@ export const useTabsStore = defineStore({
       }
       // set keepalive
       const KeepAliveList = this.tabsMenuList.filter(item => item.isKeepAlive);
-      keepAliveStore.setKeepAliveName(KeepAliveList.map(item => item.path));
+      getKeepAliveStore().setKeepAliveName(KeepAliveList.map(item => item.path));
     },
     // Close MultipleTab
     async closeMultipleTab(tabsMenuValue?: string) {
@@ -59,7 +67,7 @@ export const useTabsStore = defineStore({
       });
       // set keepalive
       const KeepAliveList = this.tabsMenuList.filter(item => item.isKeepAlive);
-      keepAliveStore.setKeepAliveName(KeepAliveList.map(item => item.path));
+      getKeepAliveStore().setKeepAliveName(KeepAliveList.map(item => item.path));
     },
     // Set Tabs
     async setTabs(tabsMenuList: TabsMenuProps[]) {
@@ -70,6 +78,17 @@ export const useTabsStore = defineStore({
       this.tabsMenuList.forEach(item => {
         if (item.path == getUrlWithParams()) item.title = title;
       });
+    },
+    /**
+     * 移除当前权限菜单中不存在的标签（例如菜单改版后残留的「登录界面」等）
+     */
+    pruneTabsToAuthMenu() {
+      const authStore = useAuthStore();
+      const allowed = new Set(authStore.flatMenuListGet.map(m => m.path));
+      const next = this.tabsMenuList.filter(tab => allowed.has(tabPathKey(tab.path)));
+      this.tabsMenuList = next;
+      const ka = next.filter(t => t.isKeepAlive).map(t => t.path);
+      getKeepAliveStore().setKeepAliveName(ka);
     }
   },
   persist: piniaPersistConfig("geeker-tabs")

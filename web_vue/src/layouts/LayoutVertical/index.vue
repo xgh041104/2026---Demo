@@ -4,7 +4,9 @@
     <el-aside>
       <div class="aside-box" :style="{ width: isCollapse ? '65px' : '210px' }">
         <div class="logo flx-center">
-          <img class="logo-img" src="@/assets/images/logo.svg" alt="logo" />
+          <el-icon class="logo-img logo-img--camera" :size="26">
+            <Camera />
+          </el-icon>
           <span v-show="!isCollapse" class="logo-text">{{ title }}</span>
         </div>
         <el-scrollbar>
@@ -32,6 +34,7 @@
 
 <script setup lang="ts" name="layoutVertical">
 import { computed } from "vue";
+import { Camera } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useGlobalStore } from "@/stores/modules/global";
